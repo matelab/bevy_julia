@@ -2,13 +2,17 @@ mod colormap;
 mod colorramp;
 mod julia;
 
-use std::{ops::Add, path::Path};
+use std::{
+    ops::Add,
+    path::{Path, PathBuf},
+};
 
 use colormap::{ColormapInputImage, ColormapMappingImage, ColormapOutputImage, ColormapPlugin};
 use colorramp::ColorRamp;
 use julia::{JuliaData, JuliaPlugin};
 
 use bevy::{
+    asset::FileAssetIo,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
     render::render_resource::*,
@@ -137,10 +141,14 @@ fn setup(
     commands.insert_resource(data);
 }
 
-fn load_path(mut commands: Commands) {
+fn load_path(mut commands: Commands, server: Res<AssetServer>) {
+    let mut path = PathBuf::new();
+    path.push(FileAssetIo::get_base_path());
+    path.push("assets");
+    path.push("path.csv");
     let mut reader = csv::ReaderBuilder::new()
         .has_headers(false)
-        .from_reader(File::open("assets/path.csv").unwrap());
+        .from_reader(File::open(path).unwrap());
 
     let mut points: Vec<Vec2> = Vec::new();
 

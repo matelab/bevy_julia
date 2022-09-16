@@ -1,5 +1,5 @@
 [package]
-name = "julia"
+name = "bevy_julia"
 version = "0.1.0"
 edition = "2021"
 

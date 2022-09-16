@@ -11,7 +11,7 @@ use bevy::{
         render_resource::*,
         renderer::{RenderContext, RenderDevice},
         texture::GpuImage,
-        RenderApp, RenderStage,
+        Extract, RenderApp, RenderStage,
     },
 };
 
@@ -30,7 +30,9 @@ impl Plugin for JuliaPlugin {
 
         let mut render_graph = render_app.world.get_resource_mut::<RenderGraph>().unwrap();
         render_graph.add_node("julia", JuliaDispatch);
-        render_graph.add_node_edge("julia", MAIN_PASS).unwrap();
+        render_graph
+            .add_node_edge("julia", bevy::render::main_graph::node::CAMERA_DRIVER)
+            .unwrap();
     }
 }
 
@@ -117,9 +119,9 @@ struct JuliaBindGroup(BindGroup);
 
 fn extract_julia(
     mut commands: Commands,
-    data: Res<Handle<JuliaData>>,
-    params: Res<Assets<JuliaData>>,
-    images: Res<Assets<Image>>,
+    data: Extract<Res<Handle<JuliaData>>>,
+    params: Extract<Res<Assets<JuliaData>>>,
+    images: Extract<Res<Assets<Image>>>,
 ) {
     commands.insert_resource(data.clone());
     let data = params.get(&data).unwrap();

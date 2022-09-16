@@ -6,7 +6,7 @@ use bevy::{
         render_graph::{self, RenderGraph},
         render_resource::*,
         renderer::{RenderContext, RenderDevice},
-        RenderApp, RenderStage,
+        Extract, RenderApp, RenderStage,
     },
 };
 
@@ -34,7 +34,9 @@ impl Plugin for ColormapPlugin {
 
         let mut render_graph = render_app.world.get_resource_mut::<RenderGraph>().unwrap();
         render_graph.add_node("colormap", ColormapDispatch);
-        render_graph.add_node_edge("colormap", MAIN_PASS).unwrap();
+        render_graph
+            .add_node_edge("colormap", bevy::render::main_graph::node::CAMERA_DRIVER)
+            .unwrap();
 
         render_graph
             .add_node_edge(self.prev_node, "colormap")
@@ -157,9 +159,9 @@ impl render_graph::Node for ColormapDispatch {
 
 fn extract_colormap(
     mut commands: Commands,
-    input: Res<ColormapInputImage>,
-    output: Res<ColormapOutputImage>,
-    mapping: Res<ColormapMappingImage>,
+    input: Extract<Res<ColormapInputImage>>,
+    output: Extract<Res<ColormapOutputImage>>,
+    mapping: Extract<Res<ColormapMappingImage>>,
 ) {
     commands.insert_resource(ColormapInputImage(input.0.clone()));
     commands.insert_resource(ColormapOutputImage(output.0.clone()));
